@@ -188,7 +188,36 @@ export default {
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
 				display: ['Poppins', 'sans-serif'],
-			}
+			},
+			typography: {
+				DEFAULT: {
+					css: {
+						maxWidth: '65ch',
+						color: 'var(--foreground)',
+						lineHeight: '1.75',
+						'> p': {
+							marginTop: '1.5em',
+							marginBottom: '1.5em',
+						},
+					},
+				},
+			},
+			letterSpacing: {
+				tighter: '-0.05em',
+				tight: '-0.025em',
+				normal: '0',
+				wide: '0.025em',
+				wider: '0.05em',
+				widest: '0.1em',
+			},
+			lineHeight: {
+				tighter: '1.1',
+				tight: '1.25',
+				snug: '1.375',
+				normal: '1.5',
+				relaxed: '1.625',
+				loose: '2',
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
