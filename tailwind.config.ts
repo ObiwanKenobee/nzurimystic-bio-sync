@@ -151,6 +151,19 @@ export default {
 					'25%': { borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%' },
 					'50%': { borderRadius: '50% 60% 30% 60% / 40% 30% 70% 50%' },
 					'75%': { borderRadius: '60% 40% 60% 30% / 60% 40% 60% 40%' }
+				},
+				'pulse-glow': {
+					'0%, 100%': { 
+						'box-shadow': '0 0 10px 2px rgba(14, 165, 233, 0.3)'
+					},
+					'50%': { 
+						'box-shadow': '0 0 25px 10px rgba(14, 165, 233, 0.5)'
+					}
+				},
+				'gradient-shift': {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' }
 				}
 			},
 			animation: {
@@ -163,7 +176,9 @@ export default {
 				'fade-in-up': 'fade-in-up 0.6s ease-out',
 				'expand': 'expand 0.5s ease-out',
 				'shimmer': 'shimmer 2s infinite linear',
-				'morph': 'morph 8s ease-in-out infinite'
+				'morph': 'morph 8s ease-in-out infinite',
+				'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
+				'gradient-shift': 'gradient-shift 8s ease infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

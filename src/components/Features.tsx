@@ -1,17 +1,21 @@
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { 
   Zap, 
   Leaf, 
   Network, 
   Globe, 
   RefreshCw,
-  Shield
+  Shield,
+  ArrowRight
 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 const Features = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
   const animatedElementsRef = useRef<HTMLDivElement[]>([]);
+  const [activeFeature, setActiveFeature] = useState<number | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -79,20 +83,36 @@ const Features = () => {
   ];
 
   return (
-    <section id="features" className="section-padding relative overflow-hidden bg-gradient-to-b from-background to-muted" ref={featuresRef}>
-      {/* Background elements */}
+    <section id="features" className="section-padding relative overflow-hidden bg-gradient-to-b from-background via-background/95 to-muted" ref={featuresRef}>
+      {/* Animated background elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
         <div className="absolute top-0 left-0 w-full h-full bg-circuit-pattern opacity-5"></div>
-        <div className="absolute top-1/4 right-1/4 w-1/2 h-1/2 bg-gradient-radial from-primary/5 to-transparent rounded-full"></div>
-        <div className="absolute bottom-1/4 left-1/4 w-1/3 h-1/3 bg-gradient-radial from-secondary/5 to-transparent rounded-full"></div>
+        
+        {/* Floating orbs */}
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gradient-radial from-primary/10 to-transparent rounded-full animate-float opacity-70"></div>
+        <div className="absolute bottom-1/4 left-1/4 w-48 h-48 bg-gradient-radial from-secondary/10 to-transparent rounded-full animate-float opacity-60" style={{ animationDelay: '1.5s' }}></div>
+        <div className="absolute top-2/3 right-1/3 w-32 h-32 bg-gradient-radial from-accent/10 to-transparent rounded-full animate-float opacity-50" style={{ animationDelay: '2.8s' }}></div>
+        
+        {/* Connection lines */}
+        <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+          <line x1="20%" y1="30%" x2="80%" y2="70%" stroke="url(#lineGradient)" strokeWidth="1" />
+          <line x1="80%" y1="20%" x2="30%" y2="80%" stroke="url(#lineGradient)" strokeWidth="1" />
+          <line x1="40%" y1="10%" x2="60%" y2="90%" stroke="url(#lineGradient)" strokeWidth="1" />
+          <defs>
+            <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="var(--color-primary)" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="var(--color-secondary)" stopOpacity="0.3" />
+            </linearGradient>
+          </defs>
+        </svg>
       </div>
 
       <div className="container mx-auto">
         {/* Section header */}
         <div className="text-center mb-16" ref={addToRefs}>
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Key Features</h2>
-          <h3 className="text-3xl md:text-4xl font-bold mb-6">Reimagining Technology</h3>
-          <p className="max-w-2xl mx-auto text-foreground/80">
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3 inline-block px-4 py-1 bg-primary/10 rounded-full">Key Features</h2>
+          <h3 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent">Reimagining Technology</h3>
+          <p className="max-w-2xl mx-auto text-foreground/80 text-lg">
             NzuriCore brings together the wisdom of ancient African knowledge systems with cutting-edge organic computing.
           </p>
         </div>
@@ -102,33 +122,50 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="feature-card group h-full"
+              className={cn(
+                "feature-card group h-full", 
+                activeFeature === index ? "ring-2 ring-primary/50 -translate-y-2" : ""
+              )}
               ref={addToRefs}
+              onMouseEnter={() => setActiveFeature(index)}
+              onMouseLeave={() => setActiveFeature(null)}
             >
               <div className="relative z-10 h-full flex flex-col">
-                <div className="mb-5 p-3 rounded-2xl bg-background/40 w-16 h-16 flex items-center justify-center glow-border">
+                <div className="mb-5 p-3 rounded-2xl bg-background/40 w-16 h-16 flex items-center justify-center glow-border group-hover:animate-pulse-soft">
                   {feature.icon}
                 </div>
-                <h4 className="text-xl font-bold mb-3">{feature.title}</h4>
+                <h4 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h4>
                 <p className="text-foreground/80 flex-grow">{feature.description}</p>
                 
-                {/* Subtle indicator */}
-                <div className="mt-4 w-12 h-1 rounded-full bg-gradient-to-r from-primary/50 to-secondary/50"></div>
+                {/* Animated indicator */}
+                <div className="mt-4 flex items-center">
+                  <div className="w-12 h-1 rounded-full bg-gradient-to-r from-primary/50 to-secondary/50 group-hover:w-16 transition-all duration-300"></div>
+                  <ArrowRight className="w-4 h-4 ml-2 text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Call to action */}
-        <div className="mt-16 text-center" ref={addToRefs}>
-          <div className="inline-block rounded-xl p-6 bg-gradient-to-br from-background to-muted border border-primary/10 shadow-lg max-w-3xl mx-auto">
-            <h4 className="text-2xl font-bold mb-4">Experience the Difference</h4>
-            <p className="text-foreground/80 mb-6">
-              NzuriCore doesn't just improve on existing technology—it fundamentally rethinks what technology can be.
-            </p>
-            <button className="bio-button">
-              <span className="relative z-10">Discover More</span>
-            </button>
+        <div className="mt-20 text-center" ref={addToRefs}>
+          <div className="relative rounded-2xl p-8 bg-gradient-to-br from-background/80 to-muted border border-primary/10 shadow-lg max-w-3xl mx-auto overflow-hidden">
+            {/* Background glow effect */}
+            <div className="absolute -inset-px bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 rounded-2xl animate-pulse-soft opacity-70"></div>
+            
+            <div className="relative z-10">
+              <h4 className="text-2xl md:text-3xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">Experience the Difference</h4>
+              <p className="text-foreground/80 mb-8 max-w-xl mx-auto">
+                NzuriCore doesn't just improve on existing technology—it fundamentally rethinks what technology can be.
+              </p>
+              <Button className="bio-button relative overflow-hidden group">
+                <span className="relative z-10 flex items-center">
+                  Discover More
+                  <ArrowRight className="ml-2 w-5 h-5 transition-transform group-hover:translate-x-1" />
+                </span>
+                <span className="absolute inset-0 bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] animate-shimmer"></span>
+              </Button>
+            </div>
           </div>
         </div>
       </div>
