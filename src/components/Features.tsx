@@ -102,7 +102,7 @@ const Features = () => {
           {features.map((feature, index) => (
             <div 
               key={index} 
-              className="feature-card h-full"
+              className="feature-card group h-full"
               ref={addToRefs}
             >
               <div className="relative z-10 h-full flex flex-col">
