@@ -1,20 +1,23 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink } from "lucide-react";
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 const InteractiveMap = () => {
-  const mapRef = useRef<HTMLDivElement>(null);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   const [activePoint, setActivePoint] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Example data for map points
+  // Example data for map points with coordinates for Mapbox
   const mapPoints = [
     {
       id: 1,
       name: "Great Zimbabwe",
       year: "1100 CE",
-      x: 55,
-      y: 60,
+      coordinates: [31.1367, -20.1715],
       technology: "Acoustic Architecture",
       description: "Advanced sound engineering that allowed communication across vast distances without electricity."
     },
@@ -22,8 +25,7 @@ const InteractiveMap = () => {
       id: 2,
       name: "Timbuktu",
       year: "1400 CE",
-      x: 45,
-      y: 45,
+      coordinates: [-3.0026, 16.7736],
       technology: "Desert Computing",
       description: "Mathematical systems that used sand patterns to solve complex equations and store information."
     },
@@ -31,8 +33,7 @@ const InteractiveMap = () => {
       id: 3,
       name: "Axum",
       year: "300 CE",
-      x: 60,
-      y: 50,
+      coordinates: [38.7216, 14.1241],
       technology: "Gravity Stabilization",
       description: "Architectural techniques that used principles of physics to create self-stabilizing structures."
     },
@@ -40,8 +41,7 @@ const InteractiveMap = () => {
       id: 4,
       name: "Congo Basin",
       year: "Pre-colonial",
-      x: 52,
-      y: 55,
+      coordinates: [23.6563, -3.0609],
       technology: "Organic Signal Processing",
       description: "Communication networks using plant-based transmissions across forest ecosystems."
     },
@@ -49,8 +49,7 @@ const InteractiveMap = () => {
       id: 5,
       name: "Nubia",
       year: "2000 BCE",
-      x: 57,
-      y: 42,
+      coordinates: [30.4852, 18.4795],
       technology: "Solar Metallurgy",
       description: "Advanced techniques for working with metals using focused solar energy."
     }
@@ -66,119 +65,211 @@ const InteractiveMap = () => {
       { threshold: 0.3 }
     );
 
-    if (mapRef.current) {
-      observer.observe(mapRef.current);
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
     }
 
     return () => {
-      if (mapRef.current) {
-        observer.unobserve(mapRef.current);
+      if (sectionRef.current) {
+        observer.unobserve(sectionRef.current);
       }
     };
   }, []);
 
-  const rotateSphere = () => {
-    // This would be implemented with three.js in a production version
-    console.log("Rotating sphere");
-  };
+  useEffect(() => {
+    if (!mapContainerRef.current || !isVisible) return;
+    
+    // Initialize Mapbox map
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VuZTI0MyIsImEiOiJjbTVudWdqOWowZWRiMmpyNDE4OHVsNzZpIn0.i4XDlkcURfkPQMMzCe0keg';
+    
+    mapRef.current = new mapboxgl.Map({
+      container: mapContainerRef.current,
+      style: 'mapbox://styles/mapbox/dark-v11',
+      projection: 'globe',
+      zoom: 1.8,
+      center: [20, 5], // Centered on Africa
+      pitch: 45,
+      bearing: 0,
+      attributionControl: false
+    });
+
+    // Add navigation controls
+    mapRef.current.addControl(
+      new mapboxgl.NavigationControl({
+        visualizePitch: true,
+      }),
+      'bottom-right'
+    );
+
+    // Add atmosphere and fog effects
+    mapRef.current.on('style.load', () => {
+      mapRef.current?.setFog({
+        color: 'rgb(23, 43, 59)',
+        'high-color': 'rgb(36, 92, 223)',
+        'horizon-blend': 0.4,
+        'space-color': 'rgb(11, 11, 25)',
+        'star-intensity': 0.6
+      });
+    });
+
+    // Add markers for each map point
+    mapPoints.forEach(point => {
+      // Create marker element
+      const markerEl = document.createElement('div');
+      markerEl.className = 'mapbox-custom-marker';
+      markerEl.style.width = '20px';
+      markerEl.style.height = '20px';
+      markerEl.style.borderRadius = '50%';
+      markerEl.style.background = point.id === activePoint ? '#facc15' : '#22c55e';
+      markerEl.style.cursor = 'pointer';
+      markerEl.style.boxShadow = point.id === activePoint 
+        ? '0 0 15px 5px rgba(251, 191, 36, 0.4)' 
+        : '0 0 10px 2px rgba(34, 197, 94, 0.4)';
+      markerEl.style.transition = 'all 0.3s ease';
+      
+      // Add pulse effect
+      const pulseEl = document.createElement('div');
+      pulseEl.className = 'pulse';
+      pulseEl.style.position = 'absolute';
+      pulseEl.style.top = '0';
+      pulseEl.style.left = '0';
+      pulseEl.style.right = '0';
+      pulseEl.style.bottom = '0';
+      pulseEl.style.borderRadius = '50%';
+      pulseEl.style.animation = 'pulse 2s infinite';
+      pulseEl.style.background = point.id === activePoint ? 'rgba(251, 191, 36, 0.4)' : 'rgba(34, 197, 94, 0.4)';
+      markerEl.appendChild(pulseEl);
+      
+      // Add click handler to marker
+      markerEl.addEventListener('click', () => {
+        setActivePoint(point.id);
+      });
+
+      // Add marker to map
+      new mapboxgl.Marker(markerEl)
+        .setLngLat(point.coordinates)
+        .addTo(mapRef.current!);
+    });
+
+    // Auto-rotation settings
+    const secondsPerRevolution = 180;
+    const maxSpinZoom = 5;
+    const slowSpinZoom = 3;
+    let userInteracting = false;
+    let spinEnabled = true;
+
+    // Spin globe function
+    function spinGlobe() {
+      if (!mapRef.current) return;
+      
+      const zoom = mapRef.current.getZoom();
+      if (spinEnabled && !userInteracting && zoom < maxSpinZoom) {
+        let distancePerSecond = 360 / secondsPerRevolution;
+        if (zoom > slowSpinZoom) {
+          const zoomDif = (maxSpinZoom - zoom) / (maxSpinZoom - slowSpinZoom);
+          distancePerSecond *= zoomDif;
+        }
+        const center = mapRef.current.getCenter();
+        center.lng -= distancePerSecond / 60;  // Slower rotation
+        mapRef.current.easeTo({ center, duration: 1000, easing: (n) => n });
+      }
+    }
+
+    // Event listeners for interaction
+    mapRef.current.on('mousedown', () => {
+      userInteracting = true;
+    });
+    
+    mapRef.current.on('dragstart', () => {
+      userInteracting = true;
+    });
+    
+    mapRef.current.on('mouseup', () => {
+      userInteracting = false;
+      spinGlobe();
+    });
+    
+    mapRef.current.on('touchend', () => {
+      userInteracting = false;
+      spinGlobe();
+    });
+
+    mapRef.current.on('moveend', () => {
+      spinGlobe();
+    });
+
+    // Start the globe spinning
+    spinGlobe();
+
+    // Add CSS for pulse animation if not already in stylesheet
+    if (!document.getElementById('mapbox-pulse-style')) {
+      const styleEl = document.createElement('style');
+      styleEl.id = 'mapbox-pulse-style';
+      styleEl.innerHTML = `
+        @keyframes pulse {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(2.5); opacity: 0; }
+        }
+      `;
+      document.head.appendChild(styleEl);
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.remove();
+      }
+    };
+  }, [isVisible, activePoint]);
 
   return (
-    <section id="map" className="section-padding relative overflow-hidden">
-      {/* Background image */}
+    <section id="map" className="section-padding relative overflow-hidden" ref={sectionRef}>
+      {/* Background gradient */}
       <div className="absolute inset-0 -z-10">
-        <img 
-          src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2000" 
-          alt="African landscape" 
-          className="w-full h-full object-cover object-center brightness-[0.25] blur-[1px]" 
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-muted/80 to-background/95"></div>
-        <div className="absolute inset-0 bg-circuit-pattern opacity-10 mix-blend-overlay"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/95"></div>
       </div>
 
-      <div className="container mx-auto" ref={mapRef}>
+      <div className="container mx-auto">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
           {/* Section header */}
-          <div className="text-center mb-16">
+          <div className="text-center mb-12">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Uncolonized Tech Evolution</h2>
-            <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">Alternative Technology Timeline</h3>
-            <p className="max-w-2xl mx-auto text-white/80">
+            <h3 className="text-3xl md:text-4xl font-bold mb-6">Alternative Technology Timeline</h3>
+            <p className="max-w-2xl mx-auto text-muted-foreground">
               Explore how African civilizations might have developed technology without colonial disruption.
             </p>
           </div>
 
           {/* Globe and information display */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Globe (placeholder for three.js globe) */}
-            <div className="relative aspect-square max-w-md mx-auto rounded-full">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 animate-pulse-soft overflow-hidden glow-border shadow-lg">
-                {/* Globe texture */}
-                <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-primary/20 animate-rotate-slow rounded-full" style={{ animationDuration: '60s' }}></div>
-                
-                {/* Africa continent silhouette */}
-                <div className="absolute inset-5 flex items-center justify-center">
-                  <svg viewBox="0 0 100 100" className="w-full h-full opacity-60">
-                    <path
-                      d="M40,20 C45,15 55,10 65,15 C75,20 80,30 80,40 C80,50 75,60 70,70 C65,80 55,85 45,80 C35,75 30,65 25,55 C20,45 25,35 30,30 C35,25 35,25 40,20 Z"
-                      fill="none"
-                      stroke="rgba(255,255,255,0.8)"
-                      strokeWidth="0.5"
-                      className="animate-pulse-soft"
-                    />
-                  </svg>
-                </div>
-                
-                {/* Points on the globe */}
-                {mapPoints.map((point) => (
-                  <button
-                    key={point.id}
-                    className={`absolute w-4 h-4 rounded-full ${activePoint === point.id ? 'bg-accent' : 'bg-primary'} animate-pulse-soft hover:scale-150 transition-all duration-300 z-10`}
-                    style={{ 
-                      left: `${point.x}%`, 
-                      top: `${point.y}%`,
-                      transform: 'translate(-50%, -50%)',
-                      boxShadow: activePoint === point.id ? '0 0 15px 5px rgba(251, 191, 36, 0.4)' : '0 0 10px 2px rgba(29, 78, 216, 0.3)'
-                    }}
-                    onClick={() => setActivePoint(point.id)}
-                    aria-label={`View information about ${point.name}`}
-                  />
-                ))}
-                
-                {/* Interactive globe controls */}
-                <div className="absolute bottom-4 right-4 flex gap-2">
-                  <button 
-                    className="w-8 h-8 rounded-full bg-background/80 backdrop-blur-sm flex items-center justify-center text-foreground/80 hover:bg-primary/20 transition-colors"
-                    onClick={rotateSphere}
-                    aria-label="Rotate globe"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0Z"/><path d="M13 12h6"/></svg>
-                  </button>
-                </div>
-              </div>
+            {/* Real 3D Globe with Mapbox */}
+            <div className="h-[450px] rounded-2xl overflow-hidden shadow-xl border border-primary/20 relative">
+              <div ref={mapContainerRef} className="absolute inset-0 rounded-xl" />
             </div>
 
             {/* Information panel */}
-            <div className="glass-card rounded-xl p-6 md:p-8 h-[400px] flex flex-col backdrop-blur-md bg-white/10">
+            <div className="glass-card rounded-xl p-6 md:p-8 h-[450px] flex flex-col backdrop-blur-md bg-white/10">
               {activePoint ? (
-                <div className="animate-fade-in-up">
+                <div className="animate-fade-in-up h-full flex flex-col">
                   <div className="flex justify-between items-start mb-5">
                     <div>
-                      <h4 className="text-2xl font-bold text-white">{mapPoints[activePoint - 1].name}</h4>
-                      <p className="text-sm text-white/60">{mapPoints[activePoint - 1].year}</p>
+                      <h4 className="text-2xl font-bold">{mapPoints.find(p => p.id === activePoint)?.name}</h4>
+                      <p className="text-sm text-muted-foreground">{mapPoints.find(p => p.id === activePoint)?.year}</p>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent/30 text-white">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent/30 text-accent-foreground">
                       Advanced Technology
                     </span>
                   </div>
                   
                   <h5 className="text-lg font-semibold text-secondary mb-3">
-                    {mapPoints[activePoint - 1].technology}
+                    {mapPoints.find(p => p.id === activePoint)?.technology}
                   </h5>
                   
-                  <p className="text-white/80 mb-6">
-                    {mapPoints[activePoint - 1].description}
+                  <p className="text-muted-foreground mb-6 flex-grow">
+                    {mapPoints.find(p => p.id === activePoint)?.description}
                   </p>
                   
-                  <div className="mt-auto">
+                  <div className="mt-auto pt-4 border-t border-primary/20">
                     <button className="inline-flex items-center text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                       Learn more about this technology
                       <ExternalLink className="ml-2 w-4 h-4" />
@@ -190,8 +281,8 @@ const InteractiveMap = () => {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
                   </div>
-                  <h4 className="text-xl font-bold mb-2 text-white">Explore the Map</h4>
-                  <p className="text-white/70 max-w-xs">
+                  <h4 className="text-xl font-bold mb-2">Explore the Map</h4>
+                  <p className="text-muted-foreground max-w-xs">
                     Click on any point on the globe to discover alternative technological developments from African civilizations.
                   </p>
                 </div>

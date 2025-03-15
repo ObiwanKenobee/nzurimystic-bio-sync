@@ -182,6 +182,46 @@
     @apply absolute inset-0 bg-circuit-pattern bg-no-repeat bg-cover opacity-5;
     transform: translateZ(-10px) scale(1.5);
   }
+
+  /* Mapbox custom styles */
+  .mapbox-custom-marker {
+    position: relative;
+    transition: all 0.3s ease;
+  }
+
+  .mapbox-custom-marker:hover {
+    transform: scale(1.5);
+    z-index: 10;
+  }
+
+  /* Use CSS variables for map colors to match theme */
+  .mapboxgl-ctrl-attrib-inner {
+    @apply text-xs text-muted-foreground/70;
+  }
+
+  /* Make mapbox controls match the site theme */
+  .mapboxgl-ctrl button {
+    @apply bg-background/80 backdrop-blur-sm border border-primary/20;
+  }
+
+  .mapboxgl-ctrl button:hover {
+    @apply bg-primary/10;
+  }
+
+  .mapboxgl-ctrl button span {
+    @apply text-foreground;
+  }
+
+  @keyframes pulse {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(2.5);
+      opacity: 0;
+    }
+  }
 }
 
 .navbar-blur {
