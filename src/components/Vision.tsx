@@ -10,17 +10,20 @@ const Vision = () => {
     {
       title: "Floating Bio-Clinics",
       description: "Airborne medical facilities powered by NzuriCore, bringing healthcare to remote communities across Africa.",
-      color: "from-primary/20 to-secondary/20"
+      color: "from-primary/20 to-secondary/20",
+      image: "https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?auto=format&fit=crop&w=1600"
     },
     {
       title: "Forest Cities",
       description: "Urban centers that grow with nature, using NzuriCore to create self-sustaining communities.",
-      color: "from-primary/20 to-accent/20"
+      color: "from-primary/20 to-accent/20",
+      image: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1600"
     },
     {
       title: "Reforestation Drones",
       description: "AI-guided drones that restore ecosystems with precision, using organic computing to adapt to local conditions.",
-      color: "from-secondary/20 to-accent/20"
+      color: "from-secondary/20 to-accent/20",
+      image: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600"
     }
   ];
 
@@ -92,19 +95,23 @@ const Vision = () => {
                     activeSlide === index ? "opacity-100" : "opacity-0 pointer-events-none"
                   }`}
                 >
-                  {/* Placeholder for actual image/3D scene */}
-                  <div className={`w-full h-full bg-gradient-to-br ${scene.color} flex items-center justify-center p-8`}>
+                  {/* Background image */}
+                  <img 
+                    src={scene.image} 
+                    alt={scene.title} 
+                    className="w-full h-full object-cover"
+                  />
+                  
+                  {/* Content overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent flex items-center justify-center p-8">
                     <div className="text-center max-w-2xl animate-fade-in-up">
                       <div className="inline-block mb-4 rounded-full px-4 py-1 text-sm font-medium bg-background/20 backdrop-blur-sm">
                         Future Technology
                       </div>
-                      <h4 className="text-3xl md:text-4xl font-bold mb-4">{scene.title}</h4>
-                      <p className="text-lg">{scene.description}</p>
+                      <h4 className="text-3xl md:text-4xl font-bold mb-4 text-white drop-shadow-lg">{scene.title}</h4>
+                      <p className="text-lg text-white/90 drop-shadow-md">{scene.description}</p>
                     </div>
                   </div>
-                  
-                  {/* Semi-transparent overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-background/70 to-transparent"></div>
                 </div>
               ))}
             </div>

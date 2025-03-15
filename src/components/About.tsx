@@ -37,19 +37,30 @@ const About = () => {
   };
 
   return (
-    <section id="about" className="section-padding relative circuit-bg overflow-hidden" ref={aboutRef}>
+    <section id="about" className="section-padding relative overflow-hidden" ref={aboutRef}>
+      {/* Background Image with Overlay */}
+      <div className="absolute inset-0 -z-10">
+        <img 
+          src="https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=2000&q=80" 
+          alt="Sunlight through trees" 
+          className="w-full h-full object-cover object-center brightness-[0.35]" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background/90"></div>
+        <div className="absolute inset-0 bg-circuit-pattern opacity-10 mix-blend-overlay"></div>
+      </div>
+
       {/* Background organic shape */}
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute -top-[30%] -left-[10%] w-2/3 h-2/3 bg-primary/5 rounded-full blur-3xl"></div>
-        <div className="absolute -bottom-[30%] -right-[10%] w-2/3 h-2/3 bg-secondary/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-5">
+        <div className="absolute -top-[30%] -left-[10%] w-2/3 h-2/3 bg-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-[30%] -right-[10%] w-2/3 h-2/3 bg-secondary/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="container mx-auto">
         {/* Section header */}
         <div className="text-center mb-16" ref={addToRefs}>
           <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">About NzuriCore</h2>
-          <h3 className="text-3xl md:text-4xl font-bold mb-6">Bio-Circuits: The Next Evolution</h3>
-          <p className="max-w-2xl mx-auto text-foreground/80">
+          <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">Bio-Circuits: The Next Evolution</h3>
+          <p className="max-w-2xl mx-auto text-white/90">
             A revolutionary fusion of organic computing and African innovation, creating a sustainable technological ecosystem.
           </p>
         </div>
@@ -60,21 +71,21 @@ const About = () => {
           <div className="space-y-8" ref={addToRefs}>
             <div className="feature-card">
               <h4 className="text-xl font-bold mb-3 text-primary">Organic Computing Foundations</h4>
-              <p className="text-foreground/80">
+              <p className="text-white/90">
                 NzuriCore leverages the computational power of specialized fungi and plant structures, creating organic circuits that process information through biochemical reactions rather than electricity.
               </p>
             </div>
 
             <div className="feature-card" ref={addToRefs}>
               <h4 className="text-xl font-bold mb-3 text-secondary">Self-Sustaining Systems</h4>
-              <p className="text-foreground/80">
+              <p className="text-white/90">
                 Unlike traditional computers, NzuriCore draws energy directly from its environment - sunlight, soil nutrients, and even waste products - forming a closed-loop system that requires no external power source.
               </p>
             </div>
 
             <div className="feature-card" ref={addToRefs}>
               <h4 className="text-xl font-bold mb-3 text-accent">African Innovation</h4>
-              <p className="text-foreground/80">
+              <p className="text-white/90">
                 Inspired by traditional African knowledge systems, NzuriCore reconnects technological advancement with ecological wisdom, creating solutions that enhance rather than deplete our natural world.
               </p>
             </div>
@@ -82,15 +93,15 @@ const About = () => {
             <div className="flex flex-col sm:flex-row gap-4 mt-8" ref={addToRefs}>
               <div className="flex items-center gap-3 text-primary">
                 <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">Carbon Negative</span>
+                <span className="font-medium text-white">Carbon Negative</span>
               </div>
               <div className="flex items-center gap-3 text-primary">
                 <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">Self-Repairing</span>
+                <span className="font-medium text-white">Self-Repairing</span>
               </div>
               <div className="flex items-center gap-3 text-primary">
                 <CheckCircle2 className="w-5 h-5" />
-                <span className="font-medium">Infinitely Scalable</span>
+                <span className="font-medium text-white">Infinitely Scalable</span>
               </div>
             </div>
           </div>
@@ -99,8 +110,8 @@ const About = () => {
           <div className="relative z-10" ref={addToRefs}>
             <div className="relative aspect-square max-w-md mx-auto">
               {/* Main circle with animation */}
-              <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse-soft overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 backdrop-blur-sm"></div>
+              <div className="absolute inset-0 rounded-full border-2 border-primary/30 animate-pulse-soft overflow-hidden backdrop-blur-sm bg-white/5">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10"></div>
                 
                 {/* Inner circles - data nodes */}
                 {Array.from({ length: 6 }).map((_, idx) => {
@@ -180,7 +191,7 @@ const About = () => {
             </div>
             
             {/* Caption */}
-            <p className="text-center text-sm text-foreground/60 mt-4">
+            <p className="text-center text-sm text-white/60 mt-4">
               Interactive Visualization: Hover to see bio-circuits in action
             </p>
           </div>

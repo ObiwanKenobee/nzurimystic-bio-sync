@@ -83,9 +83,16 @@ const InteractiveMap = () => {
   };
 
   return (
-    <section id="map" className="section-padding relative bg-gradient-to-b from-muted to-background overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute inset-0 bg-circuit-pattern opacity-5"></div>
+    <section id="map" className="section-padding relative overflow-hidden">
+      {/* Background image */}
+      <div className="absolute inset-0 -z-10">
+        <img 
+          src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=2000" 
+          alt="African landscape" 
+          className="w-full h-full object-cover object-center brightness-[0.25] blur-[1px]" 
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-muted/80 to-background/95"></div>
+        <div className="absolute inset-0 bg-circuit-pattern opacity-10 mix-blend-overlay"></div>
       </div>
 
       <div className="container mx-auto" ref={mapRef}>
@@ -93,8 +100,8 @@ const InteractiveMap = () => {
           {/* Section header */}
           <div className="text-center mb-16">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Uncolonized Tech Evolution</h2>
-            <h3 className="text-3xl md:text-4xl font-bold mb-6">Alternative Technology Timeline</h3>
-            <p className="max-w-2xl mx-auto text-foreground/80">
+            <h3 className="text-3xl md:text-4xl font-bold mb-6 text-white">Alternative Technology Timeline</h3>
+            <p className="max-w-2xl mx-auto text-white/80">
               Explore how African civilizations might have developed technology without colonial disruption.
             </p>
           </div>
@@ -103,12 +110,22 @@ const InteractiveMap = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             {/* Globe (placeholder for three.js globe) */}
             <div className="relative aspect-square max-w-md mx-auto rounded-full">
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/20 animate-pulse-soft overflow-hidden glow-border shadow-lg">
+              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/30 animate-pulse-soft overflow-hidden glow-border shadow-lg">
                 {/* Globe texture */}
-                <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-primary/10 animate-rotate-slow rounded-full" style={{ animationDuration: '60s' }}></div>
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-primary/20 animate-rotate-slow rounded-full" style={{ animationDuration: '60s' }}></div>
                 
-                {/* Continent outlines would be rendered with three.js */}
-                <div className="absolute inset-10 rounded-full bg-gradient-to-br from-accent/5 to-secondary/5 border border-accent/10"></div>
+                {/* Africa continent silhouette */}
+                <div className="absolute inset-5 flex items-center justify-center">
+                  <svg viewBox="0 0 100 100" className="w-full h-full opacity-60">
+                    <path
+                      d="M40,20 C45,15 55,10 65,15 C75,20 80,30 80,40 C80,50 75,60 70,70 C65,80 55,85 45,80 C35,75 30,65 25,55 C20,45 25,35 30,30 C35,25 35,25 40,20 Z"
+                      fill="none"
+                      stroke="rgba(255,255,255,0.8)"
+                      strokeWidth="0.5"
+                      className="animate-pulse-soft"
+                    />
+                  </svg>
+                </div>
                 
                 {/* Points on the globe */}
                 {mapPoints.map((point) => (
@@ -140,15 +157,15 @@ const InteractiveMap = () => {
             </div>
 
             {/* Information panel */}
-            <div className="glass-card rounded-xl p-6 md:p-8 h-[400px] flex flex-col">
+            <div className="glass-card rounded-xl p-6 md:p-8 h-[400px] flex flex-col backdrop-blur-md bg-white/10">
               {activePoint ? (
                 <div className="animate-fade-in-up">
                   <div className="flex justify-between items-start mb-5">
                     <div>
-                      <h4 className="text-2xl font-bold">{mapPoints[activePoint - 1].name}</h4>
-                      <p className="text-sm text-foreground/60">{mapPoints[activePoint - 1].year}</p>
+                      <h4 className="text-2xl font-bold text-white">{mapPoints[activePoint - 1].name}</h4>
+                      <p className="text-sm text-white/60">{mapPoints[activePoint - 1].year}</p>
                     </div>
-                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent/20 text-accent">
+                    <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-accent/30 text-white">
                       Advanced Technology
                     </span>
                   </div>
@@ -157,7 +174,7 @@ const InteractiveMap = () => {
                     {mapPoints[activePoint - 1].technology}
                   </h5>
                   
-                  <p className="text-foreground/80 mb-6">
+                  <p className="text-white/80 mb-6">
                     {mapPoints[activePoint - 1].description}
                   </p>
                   
@@ -173,8 +190,8 @@ const InteractiveMap = () => {
                   <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                     <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary"><circle cx="12" cy="12" r="10"/><path d="m12 16 4-4-4-4"/><path d="M8 12h8"/></svg>
                   </div>
-                  <h4 className="text-xl font-bold mb-2">Explore the Map</h4>
-                  <p className="text-foreground/70 max-w-xs">
+                  <h4 className="text-xl font-bold mb-2 text-white">Explore the Map</h4>
+                  <p className="text-white/70 max-w-xs">
                     Click on any point on the globe to discover alternative technological developments from African civilizations.
                   </p>
                 </div>

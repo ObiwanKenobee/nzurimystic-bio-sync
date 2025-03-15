@@ -1,4 +1,3 @@
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -149,7 +148,6 @@
     @apply absolute inset-0 bg-gradient-to-br from-secondary/10 to-primary/10 opacity-0 transition-opacity duration-300;
   }
   
-  /* Make the hover effect work with group */
   .group:hover .feature-card::before {
     @apply opacity-100;
   }
