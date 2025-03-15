@@ -1,8 +1,16 @@
-
 import { useEffect, useRef, useState } from "react";
 import { ExternalLink } from "lucide-react";
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
+
+interface MapPoint {
+  id: number;
+  name: string;
+  year: string;
+  coordinates: [number, number];
+  technology: string;
+  description: string;
+}
 
 const InteractiveMap = () => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -11,8 +19,7 @@ const InteractiveMap = () => {
   const [activePoint, setActivePoint] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Example data for map points with coordinates for Mapbox
-  const mapPoints = [
+  const mapPoints: MapPoint[] = [
     {
       id: 1,
       name: "Great Zimbabwe",
@@ -79,7 +86,6 @@ const InteractiveMap = () => {
   useEffect(() => {
     if (!mapContainerRef.current || !isVisible) return;
     
-    // Initialize Mapbox map
     mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VuZTI0MyIsImEiOiJjbTVudWdqOWowZWRiMmpyNDE4OHVsNzZpIn0.i4XDlkcURfkPQMMzCe0keg';
     
     mapRef.current = new mapboxgl.Map({
@@ -87,13 +93,12 @@ const InteractiveMap = () => {
       style: 'mapbox://styles/mapbox/dark-v11',
       projection: 'globe',
       zoom: 1.8,
-      center: [20, 5], // Centered on Africa
+      center: [20, 5],
       pitch: 45,
       bearing: 0,
       attributionControl: false
     });
 
-    // Add navigation controls
     mapRef.current.addControl(
       new mapboxgl.NavigationControl({
         visualizePitch: true,
@@ -101,7 +106,6 @@ const InteractiveMap = () => {
       'bottom-right'
     );
 
-    // Add atmosphere and fog effects
     mapRef.current.on('style.load', () => {
       mapRef.current?.setFog({
         color: 'rgb(23, 43, 59)',
@@ -112,9 +116,7 @@ const InteractiveMap = () => {
       });
     });
 
-    // Add markers for each map point
     mapPoints.forEach(point => {
-      // Create marker element
       const markerEl = document.createElement('div');
       markerEl.className = 'mapbox-custom-marker';
       markerEl.style.width = '20px';
@@ -127,7 +129,6 @@ const InteractiveMap = () => {
         : '0 0 10px 2px rgba(34, 197, 94, 0.4)';
       markerEl.style.transition = 'all 0.3s ease';
       
-      // Add pulse effect
       const pulseEl = document.createElement('div');
       pulseEl.className = 'pulse';
       pulseEl.style.position = 'absolute';
@@ -140,25 +141,21 @@ const InteractiveMap = () => {
       pulseEl.style.background = point.id === activePoint ? 'rgba(251, 191, 36, 0.4)' : 'rgba(34, 197, 94, 0.4)';
       markerEl.appendChild(pulseEl);
       
-      // Add click handler to marker
       markerEl.addEventListener('click', () => {
         setActivePoint(point.id);
       });
 
-      // Add marker to map
       new mapboxgl.Marker(markerEl)
         .setLngLat(point.coordinates)
         .addTo(mapRef.current!);
     });
 
-    // Auto-rotation settings
     const secondsPerRevolution = 180;
     const maxSpinZoom = 5;
     const slowSpinZoom = 3;
     let userInteracting = false;
     let spinEnabled = true;
 
-    // Spin globe function
     function spinGlobe() {
       if (!mapRef.current) return;
       
@@ -170,12 +167,11 @@ const InteractiveMap = () => {
           distancePerSecond *= zoomDif;
         }
         const center = mapRef.current.getCenter();
-        center.lng -= distancePerSecond / 60;  // Slower rotation
+        center.lng -= distancePerSecond / 60;
         mapRef.current.easeTo({ center, duration: 1000, easing: (n) => n });
       }
     }
 
-    // Event listeners for interaction
     mapRef.current.on('mousedown', () => {
       userInteracting = true;
     });
@@ -198,10 +194,6 @@ const InteractiveMap = () => {
       spinGlobe();
     });
 
-    // Start the globe spinning
-    spinGlobe();
-
-    // Add CSS for pulse animation if not already in stylesheet
     if (!document.getElementById('mapbox-pulse-style')) {
       const styleEl = document.createElement('style');
       styleEl.id = 'mapbox-pulse-style';
@@ -214,7 +206,6 @@ const InteractiveMap = () => {
       document.head.appendChild(styleEl);
     }
 
-    // Cleanup on unmount
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
@@ -224,14 +215,12 @@ const InteractiveMap = () => {
 
   return (
     <section id="map" className="section-padding relative overflow-hidden" ref={sectionRef}>
-      {/* Background gradient */}
       <div className="absolute inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-b from-background/95 via-background/70 to-background/95"></div>
       </div>
 
       <div className="container mx-auto">
         <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
-          {/* Section header */}
           <div className="text-center mb-12">
             <h2 className="text-sm font-semibold uppercase tracking-wider text-primary mb-3">Uncolonized Tech Evolution</h2>
             <h3 className="text-3xl md:text-4xl font-bold mb-6">Alternative Technology Timeline</h3>
@@ -240,14 +229,11 @@ const InteractiveMap = () => {
             </p>
           </div>
 
-          {/* Globe and information display */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-            {/* Real 3D Globe with Mapbox */}
             <div className="h-[450px] rounded-2xl overflow-hidden shadow-xl border border-primary/20 relative">
               <div ref={mapContainerRef} className="absolute inset-0 rounded-xl" />
             </div>
 
-            {/* Information panel */}
             <div className="glass-card rounded-xl p-6 md:p-8 h-[450px] flex flex-col backdrop-blur-md bg-white/10">
               {activePoint ? (
                 <div className="animate-fade-in-up h-full flex flex-col">
