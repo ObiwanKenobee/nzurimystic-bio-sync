@@ -4,7 +4,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
 
-const Navbar = () => {
+interface NavbarProps {
+  currentSection?: string;
+}
+
+const Navbar = ({ currentSection = "" }: NavbarProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
@@ -31,11 +35,12 @@ const Navbar = () => {
   }, [location.pathname]);
 
   const navigationLinks = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/#about" },
-    { name: "Features", path: "/#features" },
-    { name: "Vision", path: "/#vision" },
-    { name: "Join Us", path: "/#join" },
+    { name: "Home", path: "/", section: "hero" },
+    { name: "About", path: "/#about", section: "about" },
+    { name: "Features", path: "/#features", section: "features" },
+    { name: "Map", path: "/#map", section: "map" },
+    { name: "Vision", path: "/#vision", section: "vision" },
+    { name: "Join Us", path: "/#join", section: "join" },
   ];
 
   const scrollToSection = (id: string) => {
@@ -64,16 +69,21 @@ const Navbar = () => {
     }
   };
 
+  const isActive = (linkSection: string) => {
+    return currentSection === linkSection || 
+           (location.pathname === "/" && linkSection === "hero" && !currentSection);
+  };
+
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 py-4 px-4 md:px-8 transition-all duration-300",
+        "fixed top-0 left-0 right-0 z-50 py-4 md:py-5 px-4 md:px-8 transition-all duration-500",
         isScrolled ? "navbar-blur" : "bg-transparent"
       )}
     >
       <div className="container mx-auto flex justify-between items-center">
         <div className="flex items-center gap-2">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-secondary flex items-center justify-center depth-effect">
             <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center">
               <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-secondary animate-pulse-soft"></div>
             </div>
@@ -91,10 +101,8 @@ const Navbar = () => {
               onClick={() => handleNavigation(link.path)}
               className={cn(
                 "px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 hover:bg-primary/10",
-                location.pathname === link.path ||
-                  (link.path.includes("#") &&
-                    location.hash === link.path.substring(link.path.indexOf("#")))
-                  ? "text-primary font-semibold"
+                isActive(link.section)
+                  ? "text-primary font-semibold bg-primary/10"
                   : "text-foreground/80"
               )}
             >
@@ -108,8 +116,9 @@ const Navbar = () => {
 
         {/* Mobile Navigation Button */}
         <button
-          className="md:hidden text-foreground"
+          className="md:hidden text-foreground p-1 rounded-full hover:bg-primary/10 transition-colors"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
         >
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -124,9 +133,7 @@ const Navbar = () => {
               onClick={() => handleNavigation(link.path)}
               className={cn(
                 "px-4 py-3 rounded-lg text-left text-sm font-medium transition-all duration-300 hover:bg-primary/10",
-                location.pathname === link.path ||
-                  (link.path.includes("#") &&
-                    location.hash === link.path.substring(link.path.indexOf("#")))
+                isActive(link.section)
                   ? "text-primary font-semibold"
                   : "text-foreground/80"
               )}

@@ -88,7 +88,8 @@ export default {
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
-				sm: 'calc(var(--radius) - 4px)'
+				sm: 'calc(var(--radius) - 4px)',
+				'inherit': 'inherit',
 			},
 			keyframes: {
 				'accordion-down': {
@@ -206,7 +207,21 @@ export default {
 					'50%': {
 						backgroundSize: '200% 100%'
 					}
-				}
+				},
+				// New keyframes
+				'scrollIndicator': {
+					'0%, 100%': { transform: 'translateY(-100%)' },
+					'50%': { transform: 'translateY(100%)' }
+				},
+				'gradient-shift': {
+					'0%': { backgroundPosition: '0% 50%' },
+					'50%': { backgroundPosition: '100% 50%' },
+					'100%': { backgroundPosition: '0% 50%' }
+				},
+				'subtle-bounce': {
+					'0%, 100%': { transform: 'translateY(0)' },
+					'50%': { transform: 'translateY(-5px)' }
+				},
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
@@ -224,7 +239,11 @@ export default {
 				'neural-pulse': 'neural-pulse 4s ease-in-out infinite',
 				'organic-flow': 'organic-flow 15s ease-in-out infinite',
 				'node-activation': 'node-activation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-				'text-breathing': 'text-breathing 8s ease-in-out infinite'
+				'text-breathing': 'text-breathing 8s ease-in-out infinite',
+				// New animations
+				'scroll-indicator': 'scrollIndicator 2s cubic-bezier(0.5, 0, 0.5, 1) infinite',
+				'gradient-shift': 'gradient-shift 8s ease infinite',
+				'subtle-bounce': 'subtle-bounce 2s ease-in-out infinite',
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

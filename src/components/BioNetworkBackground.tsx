@@ -8,6 +8,9 @@ interface Node {
   size: number;
   speed: number;
   connections: number[];
+  pulseSpeed: number;
+  pulsePhase: number;
+  hue: number;
 }
 
 const BioNetworkBackground = () => {
@@ -16,14 +19,23 @@ const BioNetworkBackground = () => {
   const [mousePosition, setMousePosition] = useState<{ x: number, y: number } | null>(null);
   const nodesRef = useRef<Node[]>([]);
   const animationFrameRef = useRef<number>(0);
+  const isInViewportRef = useRef(true);
 
   useEffect(() => {
     const handleResize = () => {
       if (canvasRef.current) {
         const { width, height } = canvasRef.current.getBoundingClientRect();
+        const dpr = window.devicePixelRatio || 1;
+        
         setDimensions({ width, height });
-        canvasRef.current.width = width;
-        canvasRef.current.height = height;
+        canvasRef.current.width = width * dpr;
+        canvasRef.current.height = height * dpr;
+        
+        // Scale the canvas context to account for the device pixel ratio
+        const ctx = canvasRef.current.getContext('2d');
+        if (ctx) {
+          ctx.scale(dpr, dpr);
+        }
         
         // Reinitialize nodes on resize
         initializeNodes();
@@ -31,7 +43,7 @@ const BioNetworkBackground = () => {
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (canvasRef.current) {
+      if (canvasRef.current && isInViewportRef.current) {
         const rect = canvasRef.current.getBoundingClientRect();
         setMousePosition({
           x: e.clientX - rect.left,
@@ -43,12 +55,28 @@ const BioNetworkBackground = () => {
     const handleMouseLeave = () => {
       setMousePosition(null);
     };
+    
+    const handleVisibilityChange = () => {
+      isInViewportRef.current = !document.hidden;
+    };
+    
+    const checkIfInViewport = () => {
+      if (canvasRef.current) {
+        const rect = canvasRef.current.getBoundingClientRect();
+        isInViewportRef.current = (
+          rect.top < window.innerHeight &&
+          rect.bottom > 0
+        );
+      }
+    };
 
     // Initialize
     handleResize();
     window.addEventListener('resize', handleResize);
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('scroll', checkIfInViewport);
 
     // Start animation
     animationFrameRef.current = requestAnimationFrame(animate);
@@ -57,6 +85,8 @@ const BioNetworkBackground = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('scroll', checkIfInViewport);
       cancelAnimationFrame(animationFrameRef.current);
     };
   }, []);
@@ -65,7 +95,7 @@ const BioNetworkBackground = () => {
     if (!canvasRef.current) return;
     
     const { width, height } = canvasRef.current;
-    const nodeCount = Math.floor(width * height / 25000); // Density factor
+    const nodeCount = Math.floor(width * height / 20000); // Adjusted density for better performance
     const nodes: Node[] = [];
 
     for (let i = 0; i < nodeCount; i++) {
@@ -74,8 +104,11 @@ const BioNetworkBackground = () => {
         x: Math.random() * width,
         y: Math.random() * height,
         size: Math.random() * 2 + 1,
-        speed: Math.random() * 0.2 + 0.1,
-        connections: []
+        speed: Math.random() * 0.15 + 0.05, // Slightly slower for more natural movement
+        connections: [],
+        pulseSpeed: Math.random() * 0.02 + 0.01,
+        pulsePhase: Math.random() * Math.PI * 2,
+        hue: Math.random() * 60 + 120, // Green to blue hue range
       };
       nodes.push(node);
     }
@@ -98,13 +131,19 @@ const BioNetworkBackground = () => {
     nodesRef.current = nodes;
   };
 
-  const animate = () => {
-    if (!canvasRef.current) return;
+  const animate = (timestamp: number) => {
+    if (!canvasRef.current || !isInViewportRef.current) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      return;
+    }
     
     const ctx = canvasRef.current.getContext('2d');
-    const { width, height } = canvasRef.current;
+    const { width, height } = dimensions;
     
-    if (!ctx) return;
+    if (!ctx) {
+      animationFrameRef.current = requestAnimationFrame(animate);
+      return;
+    }
     
     // Clear canvas
     ctx.clearRect(0, 0, width, height);
@@ -120,7 +159,7 @@ const BioNetworkBackground = () => {
         if (!connectedNode) return;
         
         // Calculate distance to mouse (if mouse is present)
-        let activationLevel = 0.2;  // Base opacity
+        let activationLevel = 0.15;  // Base opacity (reduced for subtlety)
         if (mousePosition) {
           const distToMouse = Math.sqrt(
             Math.pow(mousePosition.x - (node.x + connectedNode.x) / 2, 2) + 
@@ -128,21 +167,33 @@ const BioNetworkBackground = () => {
           );
           // Increase activation for connections near mouse
           if (distToMouse < 150) {
-            activationLevel = 0.2 + (1 - distToMouse / 150) * 0.6;
+            activationLevel = 0.15 + (1 - distToMouse / 150) * 0.5;
           }
         }
         
+        // Calculate pulse effect based on time
+        const pulseEffect = Math.sin(timestamp * node.pulseSpeed + node.pulsePhase) * 0.1 + 0.9;
+        activationLevel *= pulseEffect;
+        
         // Draw connection with gradient
         const gradient = ctx.createLinearGradient(node.x, node.y, connectedNode.x, connectedNode.y);
-        gradient.addColorStop(0, `rgba(42, 93, 42, ${activationLevel})`);
-        gradient.addColorStop(0.5, `rgba(14, 165, 233, ${activationLevel * 1.2})`);
-        gradient.addColorStop(1, `rgba(42, 93, 42, ${activationLevel})`);
+        gradient.addColorStop(0, `hsla(${node.hue}, 70%, 40%, ${activationLevel})`);
+        gradient.addColorStop(0.5, `hsla(${(node.hue + connectedNode.hue) / 2}, 80%, 50%, ${activationLevel * 1.2})`);
+        gradient.addColorStop(1, `hsla(${connectedNode.hue}, 70%, 40%, ${activationLevel})`);
         
         ctx.beginPath();
+        
+        // Curved connections for more organic feel
+        const midX = (node.x + connectedNode.x) / 2;
+        const midY = (node.y + connectedNode.y) / 2;
+        const curveFactor = 20;
+        const curveX = midX + (Math.random() - 0.5) * curveFactor;
+        const curveY = midY + (Math.random() - 0.5) * curveFactor;
+        
         ctx.moveTo(node.x, node.y);
-        ctx.lineTo(connectedNode.x, connectedNode.y);
+        ctx.quadraticCurveTo(curveX, curveY, connectedNode.x, connectedNode.y);
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 0.5;
+        ctx.lineWidth = 0.4 * pulseEffect; // Thinner lines for elegance
         ctx.stroke();
       });
     });
@@ -151,8 +202,11 @@ const BioNetworkBackground = () => {
     // Draw nodes
     ctx.save();
     nodes.forEach(node => {
-      // Update position
-      node.y += node.speed;
+      // Update position with slight wobble for organic movement
+      const wobbleX = Math.sin(timestamp * 0.001 + node.id) * 0.3;
+      node.y += node.speed + wobbleX * 0.1;
+      node.x += wobbleX;
+      
       if (node.y > height) {
         node.y = 0;
         node.x = Math.random() * width;
@@ -163,7 +217,7 @@ const BioNetworkBackground = () => {
       
       // Calculate distance to mouse (if mouse is present)
       let nodeSize = node.size;
-      let activationLevel = 0.5;  // Base opacity
+      let activationLevel = 0.4;  // Base opacity
       
       if (mousePosition) {
         const distToMouse = Math.sqrt(
@@ -174,17 +228,22 @@ const BioNetworkBackground = () => {
         // Increase size and activation for nodes near mouse
         if (distToMouse < 100) {
           nodeSize = node.size + (1 - distToMouse / 100) * 3;
-          activationLevel = 0.5 + (1 - distToMouse / 100) * 0.5;
+          activationLevel = 0.4 + (1 - distToMouse / 100) * 0.4;
         }
       }
+      
+      // Calculate pulse effect
+      const pulseEffect = Math.sin(timestamp * node.pulseSpeed + node.pulsePhase) * 0.2 + 0.8;
+      nodeSize *= pulseEffect;
+      activationLevel *= pulseEffect;
       
       const gradient = ctx.createRadialGradient(
         node.x, node.y, 0,
         node.x, node.y, nodeSize * 2
       );
       
-      gradient.addColorStop(0, `rgba(42, 93, 42, ${activationLevel})`);
-      gradient.addColorStop(1, 'rgba(42, 93, 42, 0)');
+      gradient.addColorStop(0, `hsla(${node.hue}, 70%, 50%, ${activationLevel})`);
+      gradient.addColorStop(1, `hsla(${node.hue}, 70%, 40%, 0)`);
       
       ctx.arc(node.x, node.y, nodeSize, 0, Math.PI * 2);
       ctx.fillStyle = gradient;
@@ -199,7 +258,8 @@ const BioNetworkBackground = () => {
   return (
     <canvas 
       ref={canvasRef} 
-      className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-20"
+      className="absolute inset-0 w-full h-full pointer-events-none z-0 opacity-15"
+      style={{ filter: 'blur(1px)' }}
     />
   );
 };

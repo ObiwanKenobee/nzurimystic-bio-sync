@@ -101,10 +101,12 @@
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display font-bold tracking-tight;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
   }
   
   h1 {
-    @apply text-4xl md:text-5xl lg:text-6xl tracking-tighter leading-tighter;
+    @apply text-4xl md:text-5xl lg:text-6xl tracking-tighter;
   }
   
   h2 {
@@ -120,7 +122,7 @@
   }
   
   p {
-    @apply leading-relaxed text-foreground/80;
+    @apply leading-relaxed text-foreground/80 max-w-prose;
   }
   
   .section-title {
@@ -143,6 +145,7 @@
   
   .bio-button {
     @apply relative overflow-hidden bg-primary/90 hover:bg-primary text-primary-foreground px-5 py-2.5 rounded-full font-medium transition-all duration-300 shadow-md hover:shadow-lg flex items-center justify-center gap-2;
+    transform: translateZ(0);
   }
   
   .bio-button::before {
@@ -175,7 +178,7 @@
   }
   
   .feature-card {
-    @apply relative overflow-hidden rounded-xl p-5 border border-white/10 transition-all duration-300 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-md hover:shadow-lg hover:-translate-y-1;
+    @apply relative overflow-hidden rounded-xl p-6 border border-white/10 transition-all duration-300 bg-gradient-to-br from-white/5 to-white/10 backdrop-blur-md hover:shadow-lg hover:-translate-y-1;
   }
   
   .feature-card::before {
@@ -261,6 +264,7 @@
   /* Bio-reactive components */
   .neural-node {
     @apply relative rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 animate-neural-pulse;
+    transform: translateZ(0);
   }
   
   .neural-node::after {
@@ -278,7 +282,7 @@
   
   .bio-card {
     @apply relative overflow-hidden rounded-xl border border-primary/20 bg-white/5 backdrop-blur-md transition-all duration-500;
-    transform-style: preserve-3d;
+    transform: translateZ(0) perspective(1000px);
   }
   
   .bio-card::before {
@@ -296,7 +300,8 @@
 }
 
 .scrollbar-hidden::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  height: 8px;
 }
 
 .scrollbar-hidden {
@@ -359,29 +364,35 @@
 
 /* Visual hierarchy text styles */
 .text-gradient-subtle {
-  @apply bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent;
+  @apply bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent;
 }
 
 .text-emphasis {
-  @apply font-medium text-foreground;
+  @apply font-medium text-foreground tracking-tight;
 }
 
 .text-subtle {
-  @apply text-foreground/70;
+  @apply text-foreground/75;
 }
 
 .text-detail {
-  @apply text-sm text-foreground/60;
+  @apply text-sm text-foreground/60 tracking-wide;
 }
 
 /* Futuristic element styles */
 .neural-link {
   @apply relative inline-block text-primary;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
 .neural-link::after {
   content: '';
-  @apply absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 origin-left transition-transform duration-300;
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 origin-left;
+  transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.neural-link:hover {
+  @apply text-secondary;
 }
 
 .neural-link:hover::after {
@@ -410,4 +421,51 @@
 
 .synaptic-pulse {
   animation: synaptic-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Enhanced depth effects */
+.depth-effect {
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.2);
+  @apply relative;
+}
+
+.depth-effect::after {
+  content: '';
+  @apply absolute inset-0 rounded-inherit bg-gradient-to-b from-white/5 to-transparent opacity-50;
+  pointer-events: none;
+}
+
+/* Better spacing utility classes */
+.content-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.vertical-rhythm {
+  @apply space-y-8 md:space-y-12;
+}
+
+.stack-compact {
+  @apply space-y-3;
+}
+
+.stack-default {
+  @apply space-y-6;
+}
+
+.stack-loose {
+  @apply space-y-10;
+}
+
+/* Soft focus state for better accessibility */
+:focus {
+  @apply outline-none ring-2 ring-primary/30 ring-offset-2 ring-offset-background transition-all duration-200;
+}
+
+:focus:not(:focus-visible) {
+  @apply ring-0 ring-offset-0;
+}
+
+/* Beautiful selection styling */
+::selection {
+  @apply bg-primary/20 text-foreground;
 }
