@@ -257,6 +257,38 @@
       opacity: 0;
     }
   }
+
+  /* Bio-reactive components */
+  .neural-node {
+    @apply relative rounded-full bg-primary/20 backdrop-blur-sm border border-primary/30 animate-neural-pulse;
+  }
+  
+  .neural-node::after {
+    content: '';
+    @apply absolute inset-0 rounded-full animate-node-activation;
+  }
+  
+  .organic-shape {
+    @apply bg-gradient-to-r from-primary/20 via-secondary/20 to-primary/20 animate-organic-flow;
+  }
+  
+  .breathing-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent animate-text-breathing;
+  }
+  
+  .bio-card {
+    @apply relative overflow-hidden rounded-xl border border-primary/20 bg-white/5 backdrop-blur-md transition-all duration-500;
+    transform-style: preserve-3d;
+  }
+  
+  .bio-card::before {
+    content: '';
+    @apply absolute inset-0 bg-neural-gradient opacity-0 transition-opacity duration-500;
+  }
+  
+  .bio-card:hover::before {
+    @apply opacity-100;
+  }
 }
 
 .navbar-blur {
@@ -340,4 +372,42 @@
 
 .text-detail {
   @apply text-sm text-foreground/60;
+}
+
+/* Futuristic element styles */
+.neural-link {
+  @apply relative inline-block text-primary;
+}
+
+.neural-link::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-primary to-secondary scale-x-0 origin-left transition-transform duration-300;
+}
+
+.neural-link:hover::after {
+  @apply scale-x-100;
+}
+
+.bio-network-grid {
+  background-image: 
+    linear-gradient(to right, rgba(42, 93, 42, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(42, 93, 42, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Bio-interactive animations */
+@keyframes synaptic-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(14, 165, 233, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(14, 165, 233, 0);
+  }
+}
+
+.synaptic-pulse {
+  animation: synaptic-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

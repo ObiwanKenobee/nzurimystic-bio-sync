@@ -5,7 +5,10 @@ import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const Hero = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [activeNode, setActiveNode] = useState<number | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
+  const networkRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setIsVisible(true);
@@ -21,44 +24,63 @@ const Hero = () => {
       });
     };
     
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!networkRef.current) return;
+      
+      const rect = networkRef.current.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      
+      setMousePosition({ x, y });
+    };
+    
     window.addEventListener('scroll', handleParallax);
-    return () => window.removeEventListener('scroll', handleParallax);
+    window.addEventListener('mousemove', handleMouseMove);
+    
+    return () => {
+      window.removeEventListener('scroll', handleParallax);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
-  // Animate forest elements
-  const pulseElements = () => {
-    return Array.from({ length: 8 }).map((_, index) => (
-      <div 
-        key={index} 
-        className={`absolute rounded-full bg-primary/30 animate-pulse-soft`}
-        style={{
-          width: `${Math.random() * 20 + 10}px`,
-          height: `${Math.random() * 20 + 10}px`,
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 4}s`,
-          opacity: Math.random() * 0.5 + 0.3
-        }}
-      />
-    ));
+  // Neural network nodes data
+  const networkNodes = [
+    { id: 1, x: 25, y: 30, title: "Bio-AI", description: "Neural networks inspired by natural ecosystems" },
+    { id: 2, x: 75, y: 40, title: "Decentralized Intelligence", description: "Self-governing computational systems" },
+    { id: 3, x: 50, y: 70, title: "Pan-African Digital Sovereignty", description: "Technology rooted in African innovation" },
+    { id: 4, x: 35, y: 60, title: "Organic Computing", description: "Processing power from biological systems" },
+    { id: 5, x: 65, y: 20, title: "Ecological Integration", description: "Technology that enhances natural environments" }
+  ];
+
+  // Animate network connections based on mouse position
+  const getLineStyle = (x1: number, y1: number, x2: number, y2: number) => {
+    const distance = Math.sqrt(Math.pow(x2 - mousePosition.x, 2) + Math.pow(y2 - mousePosition.y, 2));
+    const mousePull = Math.max(0, 1 - distance / 50);
+    
+    // Calculate curved control points influenced by mouse position
+    const midX = (x1 + x2) / 2 + (mousePosition.x - 50) * 0.05;
+    const midY = (y1 + y2) / 2 + (mousePosition.y - 50) * 0.05;
+    
+    return {
+      opacity: 0.2 + mousePull * 0.8,
+      d: `M${x1},${y1} Q${midX},${midY} ${x2},${y2}`
+    };
   };
 
-  const circuitLines = () => {
-    return Array.from({ length: 6 }).map((_, index) => (
-      <div 
-        key={index} 
-        className={`absolute bg-secondary/30 animate-pulse-soft`}
-        style={{
-          width: `${Math.random() * 100 + 100}px`,
-          height: '1px',
-          left: `${Math.random() * 100}%`,
-          top: `${Math.random() * 100}%`,
-          transform: `rotate(${Math.random() * 180}deg)`,
-          animationDelay: `${Math.random() * 4}s`,
-          opacity: Math.random() * 0.5 + 0.3
-        }}
-      />
-    ));
+  // Function to render network connections
+  const renderConnections = () => {
+    return networkNodes.map((node, i) => 
+      networkNodes.slice(i + 1).map((otherNode, j) => (
+        <path
+          key={`${node.id}-${otherNode.id}`}
+          d={getLineStyle(node.x, node.y, otherNode.x, otherNode.y).d}
+          stroke={`rgba(34, 197, 94, ${getLineStyle(node.x, node.y, otherNode.x, otherNode.y).opacity})`}
+          strokeWidth="1"
+          fill="none"
+          className="transition-all duration-300"
+        />
+      ))
+    );
   };
 
   const scrollToAbout = () => {
@@ -84,18 +106,54 @@ const Hero = () => {
         <div className="absolute inset-0 bg-circuit-pattern opacity-20 mix-blend-overlay"></div>
       </div>
 
-      {/* Animated Elements */}
-      <div className="absolute inset-0 z-1 overflow-hidden">
-        {/* Animated background elements */}
-        <div className="absolute inset-0">
-          {pulseElements()}
-          {circuitLines()}
+      {/* Neural Network Layer */}
+      <div 
+        ref={networkRef}
+        className="absolute inset-0 z-1 overflow-hidden pointer-events-none"
+      >
+        <svg className="w-full h-full">
+          {/* Dynamic connections */}
+          {renderConnections()}
           
-          {/* Radial gradients */}
-          <div className="absolute top-1/4 left-1/4 w-1/3 h-1/3 bg-gradient-radial from-secondary/20 to-transparent rounded-full animate-pulse-soft" style={{ animationDelay: '1s' }}></div>
-          <div className="absolute bottom-1/4 right-1/4 w-1/4 h-1/4 bg-gradient-radial from-primary/20 to-transparent rounded-full animate-pulse-soft" style={{ animationDelay: '2.5s' }}></div>
-          <div className="absolute top-1/2 right-1/3 w-1/5 h-1/5 bg-gradient-radial from-accent/20 to-transparent rounded-full animate-pulse-soft" style={{ animationDelay: '0.5s' }}></div>
-        </div>
+          {/* Network nodes */}
+          {networkNodes.map((node) => (
+            <g 
+              key={node.id} 
+              className="cursor-pointer pointer-events-auto"
+              onClick={() => setActiveNode(activeNode === node.id ? null : node.id)}
+            >
+              <circle
+                cx={`${node.x}%`}
+                cy={`${node.y}%`}
+                r={activeNode === node.id ? "15" : "8"}
+                fill={activeNode === node.id ? "rgba(34, 197, 94, 0.8)" : "rgba(34, 197, 94, 0.5)"}
+                className="transition-all duration-300 animate-pulse-soft"
+                style={{ animationDelay: `${node.id * 0.2}s` }}
+              />
+              <circle
+                cx={`${node.x}%`}
+                cy={`${node.y}%`}
+                r="4"
+                fill="#ffffff"
+                className="transition-all duration-300"
+              />
+            </g>
+          ))}
+        </svg>
+        
+        {/* Node information */}
+        {activeNode && (
+          <div 
+            className="absolute backdrop-blur-sm bg-black/20 border border-primary/30 rounded-lg p-4 text-white animate-fade-in-up shadow-lg max-w-xs"
+            style={{ 
+              left: `calc(${networkNodes.find(n => n.id === activeNode)?.x}% - 100px)`,
+              top: `calc(${networkNodes.find(n => n.id === activeNode)?.y}% + 20px)`
+            }}
+          >
+            <h4 className="text-emphasis font-medium mb-1 text-balance">{networkNodes.find(n => n.id === activeNode)?.title}</h4>
+            <p className="text-subtle text-sm">{networkNodes.find(n => n.id === activeNode)?.description}</p>
+          </div>
+        )}
       </div>
 
       {/* Content Container */}
@@ -109,11 +167,11 @@ const Hero = () => {
           {/* Main headline */}
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold mb-6 tracking-tight leading-tight parallax text-white drop-shadow-md" data-speed="-0.05">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary via-secondary to-accent">NzuriCore:</span> <br className="md:hidden" />
-            Where Nature Meets Intelligence
+            <span className="text-gradient-subtle">Where Nature Meets Intelligence</span>
           </h1>
 
           {/* Subtext */}
-          <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto parallax drop-shadow-md" data-speed="0.1">
+          <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto parallax drop-shadow-md text-balance" data-speed="0.1">
             Harnessing the power of Africa's ecosystems to revolutionize computing, creating sustainable technology that works in harmony with nature.
           </p>
 

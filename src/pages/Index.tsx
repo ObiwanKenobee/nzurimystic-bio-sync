@@ -8,6 +8,7 @@ import InteractiveMap from "@/components/InteractiveMap";
 import Vision from "@/components/Vision";
 import Join from "@/components/Join";
 import Footer from "@/components/Footer";
+import BioNetworkBackground from "@/components/BioNetworkBackground";
 
 const Index = () => {
   useEffect(() => {
@@ -32,10 +33,13 @@ const Index = () => {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Bio-network background that appears across the entire site */}
+      <BioNetworkBackground />
+      
       <Navbar />
       
-      <main className="flex-grow">
+      <main className="flex-grow relative z-10">
         <Hero />
         <About />
         <Features />

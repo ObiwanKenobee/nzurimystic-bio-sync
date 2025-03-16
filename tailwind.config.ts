@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -164,6 +163,49 @@ export default {
 					'0%': { backgroundPosition: '0% 50%' },
 					'50%': { backgroundPosition: '100% 50%' },
 					'100%': { backgroundPosition: '0% 50%' }
+				},
+				'neural-pulse': {
+					'0%, 100%': { 
+						transform: 'scale(1)',
+						opacity: '0.8'
+					},
+					'50%': { 
+						transform: 'scale(1.05)',
+						opacity: '1'
+					}
+				},
+				'organic-flow': {
+					'0%': { 
+						backgroundPosition: '0% 50%',
+						borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%'
+					},
+					'50%': { 
+						backgroundPosition: '100% 50%',
+						borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%'
+					},
+					'100%': { 
+						backgroundPosition: '0% 50%',
+						borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%'
+					}
+				},
+				'node-activation': {
+					'0%': { 
+						boxShadow: '0 0 0 0 rgba(34, 197, 94, 0.4)'
+					},
+					'70%': { 
+						boxShadow: '0 0 0 15px rgba(34, 197, 94, 0)'
+					},
+					'100%': { 
+						boxShadow: '0 0 0 0 rgba(34, 197, 94, 0)'
+					}
+				},
+				'text-breathing': {
+					'0%, 100%': {
+						backgroundSize: '100% 100%'
+					},
+					'50%': {
+						backgroundSize: '200% 100%'
+					}
 				}
 			},
 			animation: {
@@ -178,12 +220,17 @@ export default {
 				'shimmer': 'shimmer 2s infinite linear',
 				'morph': 'morph 8s ease-in-out infinite',
 				'pulse-glow': 'pulse-glow 3s infinite ease-in-out',
-				'gradient-shift': 'gradient-shift 8s ease infinite'
+				'gradient-shift': 'gradient-shift 8s ease infinite',
+				'neural-pulse': 'neural-pulse 4s ease-in-out infinite',
+				'organic-flow': 'organic-flow 15s ease-in-out infinite',
+				'node-activation': 'node-activation 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+				'text-breathing': 'text-breathing 8s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
 				'circuit-pattern': "url('/circuit-pattern.svg')",
 				'hero-texture': "url('/hero-texture.svg')",
+				'neural-gradient': 'linear-gradient(90deg, rgba(42, 93, 42, 0.2) 0%, rgba(14, 165, 233, 0.2) 50%, rgba(42, 93, 42, 0.2) 100%)',
 			},
 			fontFamily: {
 				sans: ['Inter', 'sans-serif'],
